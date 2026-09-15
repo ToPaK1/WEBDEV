@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angula
 interface Service { icon: string; title: string; text: string; tags: string[]; }
 interface Project { title: string; type: string; text: string; accent: string; number: string; }
 interface Customer { name: string; email: string; passwordHash: string; }
+interface Testimonial { name: string; role: string; text: string; }
 
 @Component({
   selector: 'app-root',
@@ -19,6 +20,7 @@ export class App {
   authMode = signal<'login' | 'signup'>('login');
   authError = signal('');
   currentCustomer = signal<Customer | null>(null);
+  language = signal<'en' | 'ar'>('en');
 
   services: Service[] = [
     { icon: '◈', title: 'Business Websites', text: 'Clean, trustworthy websites that turn visitors into real customers.', tags: ['Responsive', 'SEO-ready'] },
@@ -31,6 +33,12 @@ export class App {
     { number: '01', title: 'CineBook', type: 'Movie Booking Platform', text: 'A complete booking experience with movies, cinemas, shows, seats and customer tickets.', accent: 'violet' },
     { number: '02', title: 'Restaurant Experience', type: 'Business Website Concept', text: 'A premium restaurant presence focused on menu discovery, atmosphere and reservations.', accent: 'orange' },
     { number: '03', title: 'Fashion Store', type: 'E-commerce Concept', text: 'A clean storefront concept built around collections, product discovery and mobile shopping.', accent: 'blue' }
+  ];
+
+  testimonials: Testimonial[] = [
+    { name: 'Business Owner', role: 'Restaurant', text: 'The goal is simple: a website that feels premium, loads fast and makes it easy for customers to take action.' },
+    { name: 'Brand Founder', role: 'Fashion', text: 'A strong digital presence can make a growing brand look established from the very first visit.' },
+    { name: 'Startup Team', role: 'Technology', text: 'From the interface to the API, every part of the product should work together as one experience.' }
   ];
 
   contactForm = new FormGroup({
@@ -50,6 +58,8 @@ export class App {
     if (saved) this.currentCustomer.set(JSON.parse(saved));
   }
 
+  isArabic() { return this.language() === 'ar'; }
+  toggleLanguage() { this.language.update(value => value === 'en' ? 'ar' : 'en'); }
   toggleMenu() { this.menuOpen.update(value => !value); }
   closeMenu() { this.menuOpen.set(false); }
 
@@ -76,11 +86,7 @@ export class App {
   }
 
   async submitAuth() {
-    if (this.authForm.invalid) {
-      this.authForm.markAllAsTouched();
-      return;
-    }
-
+    if (this.authForm.invalid) { this.authForm.markAllAsTouched(); return; }
     const email = this.authForm.controls.email.value.trim().toLowerCase();
     const password = this.authForm.controls.password.value;
     const customers: Customer[] = JSON.parse(localStorage.getItem('webdev_customers') || '[]');
@@ -88,15 +94,8 @@ export class App {
 
     if (this.authMode() === 'signup') {
       const name = this.authForm.controls.name.value.trim();
-      if (!name) {
-        this.authError.set('Please enter your name.');
-        return;
-      }
-      if (customers.some(customer => customer.email === email)) {
-        this.authError.set('An account with this email already exists.');
-        return;
-      }
-
+      if (!name) { this.authError.set('Please enter your name.'); return; }
+      if (customers.some(customer => customer.email === email)) { this.authError.set('An account with this email already exists.'); return; }
       const customer: Customer = { name, email, passwordHash };
       customers.push(customer);
       localStorage.setItem('webdev_customers', JSON.stringify(customers));
@@ -107,11 +106,7 @@ export class App {
     }
 
     const customer = customers.find(item => item.email === email && item.passwordHash === passwordHash);
-    if (!customer) {
-      this.authError.set('Invalid email or password.');
-      return;
-    }
-
+    if (!customer) { this.authError.set('Invalid email or password.'); return; }
     localStorage.setItem('webdev_customer_session', JSON.stringify(customer));
     this.currentCustomer.set(customer);
     this.closeAuth();
