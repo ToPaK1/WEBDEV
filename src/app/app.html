@@ -1,94 +1,12 @@
-<header class="nav-wrap">
-  <nav class="nav container">
-    <a class="brand" href="#home" (click)="closeMenu()"><span>WEB</span>DEV</a>
-    <button class="menu-btn" type="button" aria-label="Toggle menu" (click)="toggleMenu()">☰</button>
-    <div class="nav-links" [class.open]="menuOpen()">
-      <a href="#about" (click)="closeMenu()">About</a>
-      <a href="#services" (click)="closeMenu()">Services</a>
-      <a href="#projects" (click)="closeMenu()">Projects</a>
-      <a href="#social" (click)="closeMenu()">Social</a>
-      @if (currentCustomer()) {
-        <div class="account-menu"><span class="welcome">Hi, {{ currentCustomer()!.name }}</span><button class="auth-link" type="button" (click)="logout()">Logout</button></div>
-      } @else {
-        <button class="auth-link" type="button" (click)="openAuth('login')">Login</button>
-        <button class="nav-cta" type="button" (click)="openAuth('signup')">Sign up <span>↗</span></button>
-      }
-    </div>
-  </nav>
-</header>
-
-<main>
-  <section id="home" class="hero container">
-    <div class="hero-copy">
-      <div class="eyebrow"><span class="pulse"></span> AVAILABLE FOR NEW PROJECTS</div>
-      <h1>Websites that make<br><em>businesses stand out.</em></h1>
-      <p class="hero-text">I'm a Full-Stack Web Developer building fast, modern and conversion-focused websites for ambitious businesses.</p>
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="#projects">View my work <span>↗</span></a>
-        <a class="btn btn-ghost" href="#contact">Start a project</a>
-      </div>
-      <div class="hero-meta"><span>Angular</span><i></i><span>Node.js</span><i></i><span>Full-Stack</span></div>
-    </div>
-    <div class="hero-art" aria-hidden="true">
-      <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
-      <div class="code-card"><span class="dots">● ● ●</span><span class="code-line"><b>const</b> website = <strong>awesome</strong>;</span><span class="code-line muted">// built for your business</span><span class="code-line"><b>return</b> <strong>results</strong>;</span></div>
-      <div class="floating-badge"><strong>01</strong><span>Build<br>better.</span></div>
-    </div>
-  </section>
-
-  <section id="about" class="section container about">
-    <div class="section-label">01 — ABOUT</div>
-    <div class="about-grid">
-      <h2>Not just a website.<br><em>A digital presence.</em></h2>
-      <div><p class="lead">Your website is often the first impression of your business. I combine thoughtful design with solid full-stack development to create experiences people remember.</p><p>From a local café to a growing fashion brand, every project gets a custom approach — no generic templates, no unnecessary complexity.</p><a class="text-link" href="#contact">Have an idea? Let's build it <span>→</span></a></div>
-    </div>
-  </section>
-
-  <section id="services" class="section container">
-    <div class="section-head"><div class="section-label">02 — SERVICES</div><p>Built around what your business actually needs.</p></div>
-    <div class="service-grid">
-      @for (service of services; track service.title) {
-        <article class="service-card"><div class="service-icon">{{ service.icon }}</div><h3>{{ service.title }}</h3><p>{{ service.text }}</p><div class="tags">@for (tag of service.tags; track tag) { <span>{{ tag }}</span> }</div></article>
-      }
-    </div>
-  </section>
-
-  <section id="projects" class="section projects-section">
-    <div class="container"><div class="section-head"><div><div class="section-label">03 — SELECTED WORK</div><h2>Projects with purpose.</h2></div><p>Real-world ideas, designed to solve real business problems.</p></div>
-      <div class="project-list">
-        @for (project of projects; track project.number) {
-          <article class="project-card" [class]="project.accent"><div class="project-number">{{ project.number }}</div><div class="project-visual"><div class="visual-window"><div class="window-bar"><span></span><span></span><span></span></div><div class="visual-content"><b>{{ project.title }}</b><small>{{ project.type }}</small><div class="visual-lines"><i></i><i></i><i></i></div></div></div></div><div class="project-info"><span class="project-type">{{ project.type }}</span><h3>{{ project.title }}</h3><p>{{ project.text }}</p><a href="#contact" class="text-link">View case study <span>↗</span></a></div></article>
-        }
-      </div>
-    </div>
-  </section>
-
-  <section class="section stack container">
-    <div class="section-label">04 — TOOLKIT</div><div class="stack-grid"><h2>The stack behind<br><em>the work.</em></h2><div class="stack-items"><span>Angular</span><span>TypeScript</span><span>Node.js</span><span>Express</span><span>REST APIs</span><span>SQLite</span><span>Git</span><span>Responsive UI</span></div></div>
-  </section>
-
-  <section id="contact" class="section contact-section"><div class="container contact-grid"><div><div class="section-label">05 — CONTACT</div><h2>Have a project<br>in <em>mind?</em></h2><p class="lead">Tell me what you're building. Let's turn the idea into something people want to use.</p><div id="social" class="social-links"><a href="https://www.instagram.com/_mostafanassef_?stkn=MXAwZHBodWQ0Z3htMA%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><span>◎</span><div><strong>Instagram</strong><small>@_mostafanassef_</small></div><b>↗</b></a><a href="https://www.facebook.com/share/1GcA9p8tsm/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><span>f</span><div><strong>Facebook</strong><small>Connect on Facebook</small></div><b>↗</b></a><a href="https://www.tiktok.com/@_mostafanassef_" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><span>♪</span><div><strong>TikTok</strong><small>@_mostafanassef_</small></div><b>↗</b></a><a href="https://wa.me/201114566735" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp 1"><span>◉</span><div><strong>WhatsApp</strong><small>+20 111 456 6735</small></div><b>↗</b></a><a href="https://wa.me/201066194490" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp 2"><span>◉</span><div><strong>WhatsApp</strong><small>+20 106 619 4490</small></div><b>↗</b></a></div></div><form [formGroup]="contactForm" (ngSubmit)="submitForm()" novalidate><label>Name<input formControlName="name" placeholder="Your name"></label><label>Email<input type="email" formControlName="email" placeholder="you@company.com"></label><label>Project details<textarea formControlName="message" rows="5" placeholder="Tell me a little about your project..."></textarea></label><button class="btn btn-primary" type="submit">Send message <span>↗</span></button>@if (sent()) { <div class="success">✓ Message ready — we'll connect this form to the backend next.</div> }</form></div></section>
-</main>
-
-@if (authOpen()) {
-  <div class="auth-overlay" (click)="closeAuth()">
-    <section class="auth-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
-      <button class="auth-close" type="button" aria-label="Close" (click)="closeAuth()">×</button>
-      <div class="auth-kicker">WEBDEV ACCOUNT</div>
-      <h2>{{ authMode() === 'login' ? 'Welcome back.' : 'Create your account.' }}</h2>
-      <p>{{ authMode() === 'login' ? 'Login to continue as a customer.' : 'Sign up to become a WEBDEV customer.' }}</p>
-      <form [formGroup]="authForm" (ngSubmit)="submitAuth()" novalidate>
-        @if (authMode() === 'signup') {
-          <label>Full name<input formControlName="name" placeholder="Your name" autocomplete="name"></label>
-        }
-        <label>Email<input type="email" formControlName="email" placeholder="you@example.com" autocomplete="email"></label>
-        <label>Password<input type="password" formControlName="password" placeholder="At least 6 characters" autocomplete="current-password"></label>
-        @if (authError()) { <div class="auth-error">{{ authError() }}</div> }
-        <button class="btn btn-primary auth-submit" type="submit">{{ authMode() === 'login' ? 'Login' : 'Create account' }} <span>↗</span></button>
-      </form>
-      <button class="auth-switch" type="button" (click)="switchAuthMode()">{{ authMode() === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Login' }}</button>
-    </section>
-  </div>
-}
-
-<footer class="footer"><div class="container footer-inner"><a class="brand" href="#home"><span>WEB</span>DEV</a><p>Modern websites for modern businesses.</p><div class="footer-social"><a href="https://www.instagram.com/_mostafanassef_?stkn=MXAwZHBodWQ0Z3htMA%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" aria-label="Instagram">Instagram</a><a href="https://www.facebook.com/share/1GcA9p8tsm/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" aria-label="Facebook">Facebook</a><a href="https://www.tiktok.com/@_mostafanassef_" target="_blank" rel="noopener noreferrer" aria-label="TikTok">TikTok</a><a href="https://wa.me/201114566735" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">WhatsApp</a></div><span>© 2026 WEBDEV</span></div></footer>
+<header class="nav-wrap"><nav class="nav container"><a class="brand" href="#home" (click)="closeMenu()"><span>WEB</span>DEV</a><button class="menu-btn" type="button" aria-label="Toggle menu" (click)="toggleMenu()">☰</button><div class="nav-links" [class.open]="menuOpen()"><a href="#about" (click)="closeMenu()">{{ isArabic() ? 'عني' : 'About' }}</a><a href="#services" (click)="closeMenu()">{{ isArabic() ? 'الخدمات' : 'Services' }}</a><a href="#projects" (click)="closeMenu()">{{ isArabic() ? 'المشاريع' : 'Projects' }}</a><a href="#testimonials" (click)="closeMenu()">{{ isArabic() ? 'آراء العملاء' : 'Testimonials' }}</a><button class="lang-btn" type="button" (click)="toggleLanguage()">{{ isArabic() ? 'EN' : 'عربي' }}</button>@if (currentCustomer()) {<div class="account-menu"><span class="welcome">Hi, {{ currentCustomer()!.name }}</span><button class="auth-link" type="button" (click)="logout()">Logout</button></div>} @else {<button class="auth-link" type="button" (click)="openAuth('login')">Login</button><button class="nav-cta" type="button" (click)="openAuth('signup')">Sign up <span>↗</span></button>}</div></nav></header>
+<main [attr.dir]="isArabic() ? 'rtl' : 'ltr'">
+<section id="home" class="hero container"><div class="hero-copy"><div class="eyebrow"><span class="pulse"></span>{{ isArabic() ? 'متاح لمشاريع جديدة' : 'AVAILABLE FOR NEW PROJECTS' }}</div><h1>{{ isArabic() ? 'مواقع تجعل' : 'Websites that make' }}<br><em>{{ isArabic() ? 'البزنس يظهر بشكل أقوى.' : 'businesses stand out.' }}</em></h1><p class="hero-text">{{ isArabic() ? 'أنا Full-Stack Web Developer أبني مواقع سريعة وعصرية ومصممة لتحقيق نتائج حقيقية للشركات.' : "I'm a Full-Stack Web Developer building fast, modern and conversion-focused websites for ambitious businesses." }}</p><div class="hero-actions"><a class="btn btn-primary" href="#projects">{{ isArabic() ? 'شوف شغلي' : 'View my work' }} <span>↗</span></a><a class="btn btn-ghost" href="#contact">{{ isArabic() ? 'ابدأ مشروع' : 'Start a project' }}</a><a class="btn whatsapp-btn" href="https://wa.me/201114566735" target="_blank" rel="noopener noreferrer">💬 WhatsApp</a></div><div class="hero-meta"><span>Angular</span><i></i><span>Node.js</span><i></i><span>Full-Stack</span></div></div><div class="hero-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="code-card"><span class="dots">● ● ●</span><span class="code-line"><b>const</b> website = <strong>awesome</strong>;</span><span class="code-line muted">// built for your business</span><span class="code-line"><b>return</b> <strong>results</strong>;</span></div><div class="floating-badge"><strong>01</strong><span>Build<br>better.</span></div></div></section>
+<section id="about" class="section container about"><div class="section-label">01 — {{ isArabic() ? 'عني' : 'ABOUT' }}</div><div class="about-grid"><div class="profile-card"><div class="avatar">MN</div><div><span class="profile-kicker">FULL-STACK WEB DEVELOPER</span><h2>Mostafa Nassef</h2><p>Building digital experiences that look sharp, work smoothly and help businesses grow.</p></div></div><div><p class="lead">{{ isArabic() ? 'هدفي مش مجرد تصميم موقع؛ هدفي أبني حضور رقمي يخلي العميل يثق في البراند ويتفاعل معاه.' : 'Your website is often the first impression of your business. I combine thoughtful design with solid full-stack development to create experiences people remember.' }}</p><p>{{ isArabic() ? 'من المطاعم والكافيهات لبراندات الملابس والمتاجر الإلكترونية، كل مشروع له تجربة مصممة حسب احتياجاته.' : 'From a local café to a growing fashion brand, every project gets a custom approach — no generic templates, no unnecessary complexity.' }}</p><div class="about-actions"><a class="text-link" href="#contact">{{ isArabic() ? 'عندك فكرة؟ خلينا نبنيها' : "Have an idea? Let's build it" }} <span>→</span></a><a class="cv-btn" href="/mostafa-nassef-cv.html" download target="_blank">↓ {{ isArabic() ? 'تحميل CV' : 'Download CV' }}</a></div></div></div></section>
+<section id="services" class="section container"><div class="section-head"><div class="section-label">02 — {{ isArabic() ? 'الخدمات' : 'SERVICES' }}</div><p>{{ isArabic() ? 'حلول ويب مصممة حول احتياجات البزنس.' : 'Built around what your business actually needs.' }}</p></div><div class="service-grid">@for (service of services; track service.title) {<article class="service-card"><div class="service-icon">{{ service.icon }}</div><h3>{{ service.title }}</h3><p>{{ service.text }}</p><div class="tags">@for (tag of service.tags; track tag) {<span>{{ tag }}</span>}</div></article>}</div></section>
+<section id="projects" class="section projects-section"><div class="container"><div class="section-head"><div><div class="section-label">03 — SELECTED WORK</div><h2>{{ isArabic() ? 'مشاريع لها هدف.' : 'Projects with purpose.' }}</h2></div><p>{{ isArabic() ? 'أفكار عملية مصممة لحل مشاكل حقيقية.' : 'Real-world ideas, designed to solve real business problems.' }}</p></div><div class="project-list">@for (project of projects; track project.number) {<article class="project-card" [class]="project.accent"><div class="project-number">{{ project.number }}</div><div class="project-visual"><div class="visual-window"><div class="window-bar"><span></span><span></span><span></span></div><div class="visual-content"><b>{{ project.title }}</b><small>{{ project.type }}</small><div class="visual-lines"><i></i><i></i><i></i></div></div></div></div><div class="project-info"><span class="project-type">{{ project.type }}</span><h3>{{ project.title }}</h3><p>{{ project.text }}</p><a href="#contact" class="text-link">{{ isArabic() ? 'تواصل لتنفيذ مشروع مشابه' : 'Build something similar' }} <span>↗</span></a></div></article>}</div></div></section>
+<section id="testimonials" class="section container testimonials-section"><div class="section-head"><div><div class="section-label">04 — {{ isArabic() ? 'آراء العملاء' : 'TESTIMONIALS' }}</div><h2>{{ isArabic() ? 'تجربة العميل أولاً.' : 'Built around the client.' }}</h2></div><p>{{ isArabic() ? 'نماذج مبدئية يمكن استبدالها بآراء العملاء الحقيقية.' : 'Placeholder testimonials ready to be replaced with real client feedback.' }}</p></div><div class="testimonial-grid">@for (item of testimonials; track item.name) {<article class="testimonial-card"><div class="quote">“</div><p>{{ item.text }}</p><strong>{{ item.name }}</strong><span>{{ item.role }}</span></article>}</div></section>
+<section class="section stack container"><div class="section-label">05 — TOOLKIT</div><div class="stack-grid"><h2>{{ isArabic() ? 'التقنيات خلف' : 'The stack behind' }}<br><em>{{ isArabic() ? 'الشغل.' : 'the work.' }}</em></h2><div class="stack-items"><span>Angular</span><span>TypeScript</span><span>Node.js</span><span>Express</span><span>REST APIs</span><span>SQLite</span><span>Git</span><span>Responsive UI</span></div></div></section>
+<section id="contact" class="section contact-section"><div class="container contact-grid"><div><div class="section-label">06 — CONTACT</div><h2>{{ isArabic() ? 'عندك مشروع' : 'Have a project' }}<br>{{ isArabic() ? 'في بالك؟' : 'in' }} <em>{{ isArabic() ? 'خلينا نبدأ.' : 'mind?' }}</em></h2><p class="lead">{{ isArabic() ? 'احكيلي عن فكرتك ونحوّلها لموقع احترافي.' : "Tell me what you're building. Let's turn the idea into something people want to use." }}</p><div class="contact-socials"><a href="https://wa.me/201114566735" target="_blank" rel="noopener noreferrer">💬 WhatsApp 1</a><a href="https://wa.me/201066194490" target="_blank" rel="noopener noreferrer">💬 WhatsApp 2</a><a href="https://www.instagram.com/_mostafanassef_" target="_blank" rel="noopener noreferrer">Instagram</a><a href="https://www.tiktok.com/@_mostafanassef_" target="_blank" rel="noopener noreferrer">TikTok</a></div></div><form [formGroup]="contactForm" (ngSubmit)="submitForm()" novalidate><label>Name<input formControlName="name" placeholder="Your name"></label><label>Email<input type="email" formControlName="email" placeholder="you@company.com"></label><label>Project details<textarea formControlName="message" rows="5" placeholder="Tell me a little about your project..."></textarea></label><button class="btn btn-primary" type="submit">Send message <span>↗</span></button>@if (sent()) {<div class="success">✓ Message ready — we'll connect this form to the backend next.</div>}</form></div></section></main>
+<a class="floating-whatsapp" href="https://wa.me/201114566735" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">💬</a>
+@if (authOpen()) {<div class="auth-overlay" (click)="closeAuth()"><section class="auth-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true"><button class="auth-close" type="button" aria-label="Close" (click)="closeAuth()">×</button><div class="auth-kicker">WEBDEV ACCOUNT</div><h2>{{ authMode() === 'login' ? 'Welcome back.' : 'Create your account.' }}</h2><p>{{ authMode() === 'login' ? 'Login to continue as a customer.' : 'Sign up to become a WEBDEV customer.' }}</p><form [formGroup]="authForm" (ngSubmit)="submitAuth()" novalidate>@if (authMode() === 'signup') {<label>Full name<input formControlName="name" placeholder="Your name" autocomplete="name"></label>}<label>Email<input type="email" formControlName="email" placeholder="you@example.com" autocomplete="email"></label><label>Password<input type="password" formControlName="password" placeholder="At least 6 characters" autocomplete="current-password"></label>@if (authError()) {<div class="auth-error">{{ authError() }}</div>}<button class="btn btn-primary auth-submit" type="submit">{{ authMode() === 'login' ? 'Login' : 'Create account' }} <span>↗</span></button></form><button class="auth-switch" type="button" (click)="switchAuthMode()">{{ authMode() === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Login' }}</button></section></div>}
+<footer class="footer"><div class="container footer-inner"><a class="brand" href="#home"><span>WEB</span>DEV</a><p>Modern websites for modern businesses.</p><div class="footer-links"><a href="https://www.instagram.com/_mostafanassef_" target="_blank" rel="noopener noreferrer">Instagram</a><a href="https://www.facebook.com/share/1GcA9p8tsm/" target="_blank" rel="noopener noreferrer">Facebook</a><a href="https://www.tiktok.com/@_mostafanassef_" target="_blank" rel="noopener noreferrer">TikTok</a><a href="https://wa.me/201114566735" target="_blank" rel="noopener noreferrer">WhatsApp</a></div><span>© 2026 WEBDEV</span></div></footer>
