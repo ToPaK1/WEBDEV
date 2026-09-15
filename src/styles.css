@@ -1,0 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+html { scroll-behavior: smooth; }
+body { margin:0; background:#070b12; color:#f1f3f7; font-family:'DM Sans',sans-serif; }
+body::-webkit-scrollbar{width:8px} body::-webkit-scrollbar-track{background:#070b12} body::-webkit-scrollbar-thumb{background:#2c3341;border-radius:10px}
+.container{width:min(1160px,calc(100% - 48px));margin:0 auto}
+::selection{background:#7668df;color:#fff}
