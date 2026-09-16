@@ -6,71 +6,10 @@ body::-webkit-scrollbar{width:8px} body::-webkit-scrollbar-track{background:#070
 .container{width:min(1160px,calc(100% - 48px));margin:0 auto}
 ::selection{background:#7668df;color:#fff}
 
-/* Keep the fixed Sakura layer from being clipped by Angular's host element. */
-app-root{overflow:visible!important;display:block!important;min-height:100vh!important}
-
-.sakura-layer{
-  position:fixed!important;
-  inset:0!important;
-  z-index:999999!important;
-  display:block!important;
-  visibility:visible!important;
-  opacity:1!important;
-  pointer-events:none!important;
-  overflow:visible!important;
-  width:100vw!important;
-  height:100vh!important;
-}
-.sakura-layer .petal{
-  position:absolute!important;
-  top:-12vh!important;
-  display:block!important;
-  visibility:visible!important;
-  width:16px!important;
-  height:13px!important;
-  opacity:1!important;
-  background:linear-gradient(135deg,#fff0f6,#ffb0cf 55%,#ee76a6)!important;
-  border-radius:70% 15% 70% 15%!important;
-  box-shadow:0 3px 14px rgba(255,130,180,.7)!important;
-  animation-name:sakuraFall,sakuraSway!important;
-  animation-timing-function:linear,ease-in-out!important;
-  animation-iteration-count:infinite,infinite!important;
-  will-change:top,transform,margin-left!important;
-}
-.sakura-layer .petal::after{
-  content:'';
-  position:absolute;
-  width:2px;
-  height:9px;
-  left:50%;
-  top:1px;
-  background:rgba(255,255,255,.8);
-  border-radius:2px;
-  transform:rotate(20deg);
-}
-.sakura-layer .p1{left:4%!important;animation-duration:9s,2.8s!important}
-.sakura-layer .p2{left:13%!important;animation-duration:12s,3.6s!important;animation-delay:-4s,-1s!important}
-.sakura-layer .p3{left:23%!important;animation-duration:10s,3.2s!important;animation-delay:-7s,-2s!important}
-.sakura-layer .p4{left:33%!important;animation-duration:14s,4s!important;animation-delay:-2s,-3s!important}
-.sakura-layer .p5{left:44%!important;animation-duration:9s,3s!important;animation-delay:-5s,-1s!important}
-.sakura-layer .p6{left:55%!important;animation-duration:13s,4.2s!important;animation-delay:-9s,-2s!important}
-.sakura-layer .p7{left:64%!important;animation-duration:11s,3.4s!important;animation-delay:-3s,-2s!important}
-.sakura-layer .p8{left:73%!important;animation-duration:15s,4s!important;animation-delay:-11s,-3s!important}
-.sakura-layer .p9{left:82%!important;animation-duration:10s,3.1s!important;animation-delay:-6s,-1s!important}
-.sakura-layer .p10{left:91%!important;animation-duration:13s,3.8s!important;animation-delay:-8s,-2s!important}
-.sakura-layer .p11{left:38%!important;animation-duration:16s,4.5s!important;animation-delay:-13s,-4s!important}
-.sakura-layer .p12{left:68%!important;animation-duration:12s,3.5s!important;animation-delay:-10s,-1s!important}
-
-@keyframes sakuraFall{
-  0%{top:-12vh;opacity:0}
-  8%{opacity:1}
-  100%{top:112vh;opacity:.95}
-}
-@keyframes sakuraSway{
-  0%,100%{margin-left:-28px;transform:rotate(15deg)}
-  50%{margin-left:28px;transform:rotate(135deg)}
-}
-
-@media(prefers-reduced-motion:reduce){
-  .sakura-layer .petal{animation:none!important;top:20%!important;opacity:.85!important}
-}
+/* Guaranteed Sakura layer */
+.sakura-layer{position:fixed!important;left:0!important;top:0!important;width:100vw!important;height:100vh!important;z-index:99999!important;pointer-events:none!important;display:block!important;overflow:visible!important;visibility:visible!important;opacity:1!important}
+.sakura-layer .petal{position:absolute!important;top:-30px!important;display:block!important;width:18px!important;height:14px!important;min-width:18px!important;min-height:14px!important;background:#ff9fc4!important;border:1px solid #ffd1e2!important;border-radius:70% 15% 70% 15%!important;box-shadow:0 0 10px rgba(255,159,196,.9),0 3px 8px rgba(0,0,0,.25)!important;opacity:1!important;visibility:visible!important;animation:sakuraFall 7s linear infinite!important}
+.sakura-layer .petal::after{content:''!important;position:absolute!important;left:50%!important;top:1px!important;width:2px!important;height:10px!important;background:#fff!important;opacity:.75!important;border-radius:2px!important;transform:rotate(20deg)!important}
+.sakura-layer .p1{left:3%!important;animation-duration:7s!important;animation-delay:-1s!important}.sakura-layer .p2{left:11%!important;animation-duration:9s!important;animation-delay:-6s!important}.sakura-layer .p3{left:19%!important;animation-duration:8s!important;animation-delay:-3s!important}.sakura-layer .p4{left:28%!important;animation-duration:10s!important;animation-delay:-8s!important}.sakura-layer .p5{left:37%!important;animation-duration:7.5s!important;animation-delay:-4s!important}.sakura-layer .p6{left:46%!important;animation-duration:9.5s!important;animation-delay:-7s!important}.sakura-layer .p7{left:55%!important;animation-duration:8.5s!important;animation-delay:-2s!important}.sakura-layer .p8{left:64%!important;animation-duration:11s!important;animation-delay:-9s!important}.sakura-layer .p9{left:73%!important;animation-duration:7s!important;animation-delay:-5s!important}.sakura-layer .p10{left:82%!important;animation-duration:10s!important;animation-delay:-7s!important}.sakura-layer .p11{left:91%!important;animation-duration:8s!important;animation-delay:-2s!important}.sakura-layer .p12{left:50%!important;animation-duration:12s!important;animation-delay:-10s!important}
+@keyframes sakuraFall{0%{top:-30px;transform:translateX(0) rotate(0deg);opacity:0}8%{opacity:1}50%{transform:translateX(45px) rotate(180deg)}100%{top:calc(100vh + 30px);transform:translateX(-45px) rotate(360deg);opacity:1}}
+@media(prefers-reduced-motion:reduce){.sakura-layer .petal{animation:none!important;top:20%!important;opacity:1!important}}
