@@ -22,6 +22,11 @@
   text-shadow:0 0 18px rgba(69,214,255,.7);
 }
 
+/* Keep only the two WhatsApp contact cards. The hero WhatsApp CTA is hidden. */
+.hero-actions .whatsapp-btn{
+  display:none !important;
+}
+
 .contact-socials{
   display:grid !important;
   grid-template-columns:repeat(2,minmax(0,1fr));
@@ -43,21 +48,13 @@
   transition:transform .3s ease,border-color .3s ease,box-shadow .3s ease !important;
 }
 
-/* Never display a phone number or extra generated text inside WhatsApp buttons. */
-.contact-socials .social-link.whatsapp span{
-  font-size:0 !important;
-}
+/* WhatsApp labels are controlled only by the HTML span. Never inject extra text. */
+.contact-socials .social-link.whatsapp span,
 .contact-socials .social-link.whatsapp span::after{
-  content:'WhatsApp';
-  font-size:15px;
-  line-height:1.2;
-  color:inherit;
-}
-.contact-socials .social-link.whatsapp::before{
-  content:"\f232" !important;
+  font-size:15px !important;
+  content:none !important;
 }
 
-/* Font Awesome 6 brand glyphs */
 .contact-socials .social-link::before{
   font-family:"Font Awesome 6 Brands";
   font-weight:400;
@@ -88,11 +85,11 @@
 }
 .contact-socials .social-link:hover::after{transform:translateX(45%) rotate(8deg)}
 
-.contact-socials a[href*="wa.me"]::before{content:"\f232";color:#25D366;box-shadow:0 0 22px rgba(37,211,102,.3)}
-.contact-socials a[href*="instagram"]::before{content:"\f16d";color:#ff5ca8;box-shadow:0 0 22px rgba(255,92,168,.3)}
-.contact-socials a[href*="facebook"]::before{content:"\f39e";color:#4d8dff;box-shadow:0 0 22px rgba(77,141,255,.3)}
-.contact-socials a[href*="tiktok"]::before{content:"\e07b";color:#fff;box-shadow:0 0 22px rgba(255,255,255,.18)}
-.contact-socials a[href*="linkedin"]::before{content:"\f0e1";color:#38a8ff;box-shadow:0 0 22px rgba(56,168,255,.3)}
+.contact-socials a[href*="wa.me"]::before{content:"\f232" !important;color:#25D366;box-shadow:0 0 22px rgba(37,211,102,.3)}
+.contact-socials a[href*="instagram"]::before{content:"\f16d" !important;color:#ff5ca8;box-shadow:0 0 22px rgba(255,92,168,.3)}
+.contact-socials a[href*="facebook"]::before{content:"\f39e" !important;color:#4d8dff;box-shadow:0 0 22px rgba(77,141,255,.3)}
+.contact-socials a[href*="tiktok"]::before{content:"\e07b" !important;color:#fff;box-shadow:0 0 22px rgba(255,255,255,.18)}
+.contact-socials a[href*="linkedin"]::before{content:"\f0e1" !important;color:#38a8ff;box-shadow:0 0 22px rgba(56,168,255,.3)}
 
 @media (max-width:700px){
   .contact-socials{grid-template-columns:1fr !important}
