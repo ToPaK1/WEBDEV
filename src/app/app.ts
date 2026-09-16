@@ -13,14 +13,23 @@ interface DashboardCustomer { id: string; name: string; email: string; role: str
 @Component({ selector: 'app-root', standalone: true, imports: [CommonModule, ReactiveFormsModule, HttpClientModule], templateUrl: './app.html', styleUrl: './app.css' })
 export class App implements OnInit {
   private readonly apiUrl = 'http://localhost:3001/api';
-  menuOpen = signal(false); sent = signal(false); sending = signal(false); sendError = signal(''); authOpen = signal(false); authMode = signal<'login' | 'signup'>('login'); authError = signal(''); authBusy = signal(false); currentCustomer = signal<User | null>(null); language = signal<'en' | 'ar'>('en'); theme = signal<'dark' | 'light'>('dark'); loading = signal(true); notFound = signal(false); cursorX = signal(0); cursorY = signal(0); selectedProject = signal<Project | null>(null); adminOpen = signal(false); adminLoading = signal(false); adminError = signal(''); adminStats = signal({ customers: 0, messages: 0, unreadMessages: 0 }); adminMessages = signal<DashboardMessage[]>([]); adminCustomers = signal<DashboardCustomer[]>([]); revealReady = signal(false);
+  menuOpen = signal(false); sent = signal(false); sending = signal(false); sendError = signal('');
+  authOpen = signal(false); authMode = signal<'login' | 'signup'>('login'); authError = signal(''); authBusy = signal(false);
+  currentCustomer = signal<User | null>(null); language = signal<'en' | 'ar'>('en'); theme = signal<'dark' | 'light'>('dark');
+  loading = signal(true); notFound = signal(false); cursorX = signal(0); cursorY = signal(0); scrollY = signal(0);
+  selectedProject = signal<Project | null>(null); adminOpen = signal(false); adminLoading = signal(false); adminError = signal('');
+  adminStats = signal({ customers: 0, messages: 0, unreadMessages: 0 }); adminMessages = signal<DashboardMessage[]>([]); adminCustomers = signal<DashboardCustomer[]>([]);
+  revealReady = signal(false);
+
+  heroWords = signal(['websites', 'experiences', 'web apps', 'digital products']);
+  activeHeroWord = signal(0);
 
   services: Service[] = [
     { icon: '◈', title: 'Business Websites', text: 'Clean, trustworthy websites that turn visitors into real customers.', tags: ['Responsive', 'SEO-ready'] },
     { icon: '⌁', title: 'Restaurants & Cafés', text: 'Digital experiences for menus, reservations, locations and brand stories.', tags: ['Menus', 'Bookings'] },
     { icon: '◇', title: 'Fashion & E-commerce', text: 'Modern storefronts designed around products, conversion and a strong visual identity.', tags: ['Catalogs', 'Checkout'] },
     { icon: '↗', title: 'Custom Web Apps', text: 'Full-stack applications with secure APIs, databases and smooth user flows.', tags: ['Angular', 'Node.js'] },
-    { icon: '⚙', title: 'Fix & Upgrade Existing Websites', text: 'Already have a website? I can fix bugs, improve speed, repair broken features, refresh the design and add new functionality.', tags: ['Bug Fixes', 'Performance', 'Redesign'] }
+    { icon: '⚙', title: 'Fix & Upgrade Existing Websites', text: 'Fix bugs, repair broken features, improve speed, refresh the design and add new functionality to an existing website.', tags: ['Bug Fixes', 'Performance', 'Redesign'] }
   ];
   businessTypes = [
     { icon: '🍽️', title: 'Restaurants', text: 'Menus, reservations, locations and a premium food-first experience.' }, { icon: '☕', title: 'Cafés', text: 'A warm digital presence with menus, offers, maps and social links.' }, { icon: '👕', title: 'Fashion Brands', text: 'Visual storefronts that make collections and products easy to explore.' }, { icon: '🛒', title: 'E-commerce', text: 'Product discovery, cart flows and scalable customer experiences.' }, { icon: '🏢', title: 'Companies', text: 'Professional websites that explain services and build trust.' }, { icon: '⚡', title: 'Custom Apps', text: 'Dashboards, booking systems and business tools built around your workflow.' }, { icon: '🛠️', title: 'Existing Websites', text: 'Fix a broken website, modernize an old design, improve mobile experience or add the feature you need.' }
@@ -31,16 +40,34 @@ export class App implements OnInit {
     { number: '03', title: 'Fashion Store', type: 'E-commerce Concept', text: 'A clean storefront concept built around collections, product discovery and mobile shopping.', accent: 'blue', tech: ['Angular', 'TypeScript', 'Node.js'] }
   ];
   testimonials: Testimonial[] = [
-    { name: 'Business-first', role: 'Every project starts with the goal', text: 'I build around what the business needs: clear messaging, useful features and a smooth path from visitor to customer.' }, { name: 'Full-stack', role: 'Frontend + Backend', text: 'I work across Angular, TypeScript, Node.js, Express, REST APIs and databases to build complete web experiences.' }, { name: 'Responsive', role: 'Desktop + Mobile', text: 'Every interface is designed to stay clean, readable and easy to use across phones, tablets and desktop screens.' }, { name: 'Built to grow', role: 'Clean foundation', text: 'The goal is not only a good-looking website, but a solid foundation that can evolve with the business.' }
+    { name: 'Business-first', role: 'Every project starts with the goal', text: 'I build around what the business needs: clear messaging, useful features and a smooth path from visitor to customer.' },
+    { name: 'Full-stack', role: 'Frontend + Backend', text: 'I work across Angular, TypeScript, Node.js, Express, REST APIs and databases to build complete web experiences.' },
+    { name: 'Responsive', role: 'Desktop + Mobile', text: 'Every interface is designed to stay clean, readable and easy to use across phones, tablets and desktop screens.' },
+    { name: 'Built to grow', role: 'Clean foundation', text: 'The goal is not only a good-looking website, but a solid foundation that can evolve with the business.' }
   ];
+
   contactForm = new FormGroup({ name: new FormControl('', { nonNullable: true, validators: [Validators.required] }), email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }), business: new FormControl('', { nonNullable: true }), message: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(10)] }) });
   authForm = new FormGroup({ name: new FormControl('', { nonNullable: true }), email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }), password: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(6)] }) });
 
-  constructor(private http: HttpClient) { const savedUser = localStorage.getItem('webdev_user'); if (savedUser) { try { this.currentCustomer.set(JSON.parse(savedUser)); } catch { localStorage.removeItem('webdev_user'); } } const savedTheme = localStorage.getItem('webdev_theme'); if (savedTheme === 'light' || savedTheme === 'dark') this.theme.set(savedTheme); this.applyTheme(this.theme()); }
-  ngOnInit() { this.notFound.set(location.pathname !== '/' && location.pathname !== '/index.html'); setTimeout(() => { this.loading.set(false); this.revealReady.set(true); this.updatePortfolioCopy(); }, 650); }
+  constructor(private http: HttpClient) {
+    const savedUser = localStorage.getItem('webdev_user');
+    if (savedUser) { try { this.currentCustomer.set(JSON.parse(savedUser)); } catch { localStorage.removeItem('webdev_user'); } }
+    const savedTheme = localStorage.getItem('webdev_theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') this.theme.set(savedTheme);
+    this.applyTheme(this.theme());
+  }
+
+  ngOnInit() {
+    this.notFound.set(location.pathname !== '/' && location.pathname !== '/index.html');
+    setTimeout(() => { this.loading.set(false); this.revealReady.set(true); }, 650);
+    setInterval(() => this.activeHeroWord.update(i => (i + 1) % this.heroWords().length), 2600);
+  }
+
+  @HostListener('window:scroll') onScroll() { this.scrollY.set(window.scrollY); }
   @HostListener('document:mousemove', ['$event']) onMouseMove(event: MouseEvent) { this.cursorX.set(event.clientX); this.cursorY.set(event.clientY); }
+
   isArabic() { return this.language() === 'ar'; }
-  toggleLanguage() { this.language.update(value => value === 'en' ? 'ar' : 'en'); setTimeout(() => this.updatePortfolioCopy()); }
+  toggleLanguage() { this.language.update(value => value === 'en' ? 'ar' : 'en'); }
   isLightMode() { return this.theme() === 'light'; }
   isAdmin() { return this.currentCustomer()?.role === 'admin'; }
   toggleTheme() { const nextTheme = this.theme() === 'dark' ? 'light' : 'dark'; this.theme.set(nextTheme); localStorage.setItem('webdev_theme', nextTheme); this.applyTheme(nextTheme); }
@@ -48,13 +75,32 @@ export class App implements OnInit {
   toggleMenu() { this.menuOpen.update(value => !value); }
   closeMenu() { this.menuOpen.set(false); }
 
-  private updatePortfolioCopy() { const section = document.getElementById('testimonials'); if (section) { const label = section.querySelector('.section-label'); const heading = section.querySelector('h2'); const description = section.querySelector('.section-head p'); const navLink = document.querySelector('.nav-links a[href="#testimonials"]'); if (label) label.textContent = this.isArabic() ? '05 — طريقة الشغل' : '05 — MY APPROACH'; if (heading) heading.textContent = this.isArabic() ? 'إزاي ببني المشروع.' : 'How I build your project.'; if (description) description.textContent = this.isArabic() ? 'من فهم البزنس لحد تجربة مستخدم كاملة، كل خطوة لها هدف واضح.' : 'From understanding the business to building the final experience, every step has a clear purpose.'; if (navLink) navLink.textContent = this.isArabic() ? 'طريقة الشغل' : 'My Approach'; } const aboutParagraphs = document.querySelectorAll('#about .about-grid .reveal-item p'); const aboutDetails = aboutParagraphs.item(1); if (aboutDetails) aboutDetails.textContent = this.isArabic() ? 'من المطاعم والكافيهات لبراندات الملابس والمتاجر الإلكترونية، كل مشروع له تجربة مصممة حسب احتياجاته. كما حصلت على تدريب في تطوير الويب من NTI، مما عزز خبرتي العملية في بناء تطبيقات ومواقع الويب.' : 'From local cafés and restaurants to fashion brands and e-commerce stores, every project gets a custom approach. I also completed a Web Development course at NTI, strengthening my practical skills in building modern websites and web applications.'; }
   openAuth(mode: 'login' | 'signup') { this.authMode.set(mode); this.authError.set(''); this.authForm.reset(); this.authOpen.set(true); this.closeMenu(); }
   closeAuth() { this.authOpen.set(false); this.authError.set(''); }
   switchAuthMode() { this.authMode.update(mode => mode === 'login' ? 'signup' : 'login'); this.authError.set(''); this.authForm.reset(); }
-  submitAuth() { if (this.authForm.invalid) { this.authForm.markAllAsTouched(); return; } this.authBusy.set(true); this.authError.set(''); const mode = this.authMode(); const payload = { name: this.authForm.controls.name.value.trim(), email: this.authForm.controls.email.value.trim().toLowerCase(), password: this.authForm.controls.password.value }; this.http.post<{ token: string; user: User }>(`${this.apiUrl}/auth/${mode}`, payload).subscribe({ next: response => { localStorage.setItem('webdev_token', response.token); localStorage.setItem('webdev_user', JSON.stringify(response.user)); this.currentCustomer.set(response.user); this.authBusy.set(false); this.closeAuth(); }, error: error => { this.authBusy.set(false); this.authError.set(error?.error?.message || 'Could not connect to the WEBDEV API. Start the backend with npm run api.'); } }); }
+
+  submitAuth() {
+    if (this.authForm.invalid) { this.authForm.markAllAsTouched(); return; }
+    this.authBusy.set(true); this.authError.set('');
+    const mode = this.authMode();
+    const payload = { name: this.authForm.controls.name.value.trim(), email: this.authForm.controls.email.value.trim().toLowerCase(), password: this.authForm.controls.password.value };
+    this.http.post<{ token: string; user: User }>(`${this.apiUrl}/auth/${mode}`, payload).subscribe({
+      next: response => { localStorage.setItem('webdev_token', response.token); localStorage.setItem('webdev_user', JSON.stringify(response.user)); this.currentCustomer.set(response.user); this.authBusy.set(false); this.closeAuth(); },
+      error: error => { this.authBusy.set(false); this.authError.set(error?.error?.message || 'Could not connect to the WEBDEV API. Start the backend with npm run api.'); }
+    });
+  }
+
   logout() { localStorage.removeItem('webdev_token'); localStorage.removeItem('webdev_user'); this.currentCustomer.set(null); this.adminOpen.set(false); }
-  submitForm() { if (this.contactForm.invalid) { this.contactForm.markAllAsTouched(); return; } this.sending.set(true); this.sent.set(false); this.sendError.set(''); this.http.post<{ message: string }>(`${this.apiUrl}/contact`, this.contactForm.getRawValue()).subscribe({ next: () => { this.sending.set(false); this.sent.set(true); this.contactForm.reset(); }, error: error => { this.sending.set(false); this.sendError.set(error?.error?.message || 'Could not send your message. Start the WEBDEV API and try again.'); } }); }
+
+  submitForm() {
+    if (this.contactForm.invalid) { this.contactForm.markAllAsTouched(); return; }
+    this.sending.set(true); this.sent.set(false); this.sendError('');
+    this.http.post<{ message: string }>(`${this.apiUrl}/contact`, this.contactForm.getRawValue()).subscribe({
+      next: () => { this.sending.set(false); this.sent.set(true); this.contactForm.reset(); },
+      error: error => { this.sending.set(false); this.sendError(error?.error?.message || 'Could not send your message. Start the WEBDEV API and try again.'); }
+    });
+  }
+
   submitContact() { this.submitForm(); }
   contactStatus() { return this.sent() ? (this.isArabic() ? 'تم إرسال رسالتك بنجاح.' : 'Message sent successfully.') : ''; }
   contactError() { return this.sendError(); }
@@ -62,8 +108,19 @@ export class App implements OnInit {
   openProject(project: Project) { this.selectedProject.set(project); }
   closeProject() { this.selectedProject.set(null); }
   scrollToContact() { document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }
+
   openAdmin() { if (!this.isAdmin()) return; this.adminOpen.set(true); this.loadAdminDashboard(); }
   closeAdmin() { this.adminOpen.set(false); }
-  loadAdminDashboard() { const token = localStorage.getItem('webdev_token'); if (!token) return; this.adminLoading.set(true); this.adminError.set(''); this.http.get<{ stats: { customers: number; messages: number; unreadMessages: number }; customers: DashboardCustomer[]; messages: DashboardMessage[] }>(`${this.apiUrl}/admin/dashboard`, { headers: { Authorization: `Bearer ${token}` } }).subscribe({ next: data => { this.adminStats.set(data.stats); this.adminCustomers.set(data.customers); this.adminMessages.set(data.messages); this.adminLoading.set(false); }, error: error => { this.adminLoading.set(false); this.adminError.set(error?.error?.message || 'Unable to load admin data.'); } }); }
-  markMessageRead(id: string) { const token = localStorage.getItem('webdev_token'); if (!token) return; this.http.patch<DashboardMessage>(`${this.apiUrl}/admin/messages/${id}`, { status: 'read' }, { headers: { Authorization: `Bearer ${token}` } }).subscribe({ next: () => this.loadAdminDashboard() }); }
+  loadAdminDashboard() {
+    const token = localStorage.getItem('webdev_token'); if (!token) return;
+    this.adminLoading.set(true); this.adminError.set('');
+    this.http.get<{ stats: { customers: number; messages: number; unreadMessages: number }; customers: DashboardCustomer[]; messages: DashboardMessage[] }>(`${this.apiUrl}/admin/dashboard`, { headers: { Authorization: `Bearer ${token}` } }).subscribe({
+      next: data => { this.adminStats.set(data.stats); this.adminCustomers.set(data.customers); this.adminMessages.set(data.messages); this.adminLoading.set(false); },
+      error: error => { this.adminLoading.set(false); this.adminError.set(error?.error?.message || 'Unable to load admin data.'); }
+    });
+  }
+  markMessageRead(id: string) {
+    const token = localStorage.getItem('webdev_token'); if (!token) return;
+    this.http.patch<DashboardMessage>(`${this.apiUrl}/admin/messages/${id}`, { status: 'read' }, { headers: { Authorization: `Bearer ${token}` } }).subscribe({ next: () => this.loadAdminDashboard() });
+  }
 }
