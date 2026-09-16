@@ -20,7 +20,6 @@ export class App implements OnInit {
   selectedProject = signal<Project | null>(null); adminOpen = signal(false); adminLoading = signal(false); adminError = signal('');
   adminStats = signal({ customers: 0, messages: 0, unreadMessages: 0 }); adminMessages = signal<DashboardMessage[]>([]); adminCustomers = signal<DashboardCustomer[]>([]);
   revealReady = signal(false);
-
   heroWords = signal(['websites', 'experiences', 'web apps', 'digital products']);
   activeHeroWord = signal(0);
 
@@ -31,7 +30,6 @@ export class App implements OnInit {
     { icon: '↗', title: 'Custom Web Apps', text: 'Full-stack applications with secure APIs, databases and smooth user flows.', tags: ['Angular', 'Node.js'] },
     { icon: '⚙', title: 'Fix & Upgrade Existing Websites', text: 'Fix bugs, repair broken features, improve speed, refresh the design and add new functionality to an existing website.', tags: ['Bug Fixes', 'Performance', 'Redesign'] }
   ];
-
   businessTypes = [
     { icon: '🍽️', title: 'Restaurants', text: 'Menus, reservations, locations and a premium food-first experience.' },
     { icon: '☕', title: 'Cafés', text: 'A warm digital presence with menus, offers, maps and social links.' },
@@ -41,13 +39,11 @@ export class App implements OnInit {
     { icon: '⚡', title: 'Custom Apps', text: 'Dashboards, booking systems and business tools built around your workflow.' },
     { icon: '🛠️', title: 'Existing Websites', text: 'Fix a broken website, modernize an old design, improve mobile experience or add the feature you need.' }
   ];
-
   projects: Project[] = [
     { number: '01', title: 'CineBook', type: 'Movie Booking Platform', text: 'A complete booking experience with movies, cinemas, shows, seats and customer tickets.', accent: 'violet', tech: ['Angular', 'Node.js', 'Express', 'SQLite'], github: 'https://github.com/ToPaK1/movie-booking-backend' },
     { number: '02', title: 'Restaurant Experience', type: 'Business Website Concept', text: 'A premium restaurant presence focused on menu discovery, atmosphere and reservations.', accent: 'orange', tech: ['Angular', 'Responsive UI', 'REST API'] },
     { number: '03', title: 'Fashion Store', type: 'E-commerce Concept', text: 'A clean storefront concept built around collections, product discovery and mobile shopping.', accent: 'blue', tech: ['Angular', 'TypeScript', 'Node.js'] }
   ];
-
   testimonials: Testimonial[] = [
     { name: 'Business-first', role: 'Every project starts with the goal', text: 'I build around what the business needs: clear messaging, useful features and a smooth path from visitor to customer.' },
     { name: 'Full-stack', role: 'Frontend + Backend', text: 'I work across Angular, TypeScript, Node.js, Express, REST APIs and databases to build complete web experiences.' },
@@ -56,16 +52,16 @@ export class App implements OnInit {
   ];
 
   contactForm = new FormGroup({
-    name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    name: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(2)] }),
     email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
-    business: new FormControl('', { nonNullable: true }),
-    message: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(10)] })
+    business: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(80)] }),
+    message: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(10), Validators.maxLength(5000)] })
   });
 
   authForm = new FormGroup({
-    name: new FormControl('', { nonNullable: true }),
+    name: new FormControl('', { nonNullable: true, validators: [Validators.minLength(2), Validators.maxLength(80)] }),
     email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
-    password: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(6)] })
+    password: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(6), Validators.maxLength(128)] })
   });
 
   constructor(private http: HttpClient) {
@@ -81,10 +77,8 @@ export class App implements OnInit {
     setTimeout(() => { this.loading.set(false); this.revealReady.set(true); }, 650);
     setInterval(() => this.activeHeroWord.update(i => (i + 1) % this.heroWords().length), 2600);
   }
-
   @HostListener('window:scroll') onScroll() { this.scrollY.set(window.scrollY); }
   @HostListener('document:mousemove', ['$event']) onMouseMove(event: MouseEvent) { this.cursorX.set(event.clientX); this.cursorY.set(event.clientY); }
-
   isArabic() { return this.language() === 'ar'; }
   toggleLanguage() { this.language.update(value => value === 'en' ? 'ar' : 'en'); }
   isLightMode() { return this.theme() === 'light'; }
@@ -94,21 +88,29 @@ export class App implements OnInit {
   toggleMenu() { this.menuOpen.update(value => !value); }
   closeMenu() { this.menuOpen.set(false); }
 
-  openAuth(mode: 'login' | 'signup') { this.authMode.set(mode); this.authError.set(''); this.authForm.reset(); this.authOpen.set(true); this.closeMenu(); }
-  closeAuth() { this.authOpen.set(false); this.authError.set(''); }
-  switchAuthMode() { this.authMode.update(mode => mode === 'login' ? 'signup' : 'login'); this.authError.set(''); this.authForm.reset(); }
+  openAuth(mode: 'login' | 'signup') {
+    this.authMode.set(mode); this.authError.set(''); this.authForm.reset();
+    if (mode === 'login') this.authForm.controls.name.clearValidators();
+    else this.authForm.controls.name.setValidators([Validators.required, Validators.minLength(2), Validators.maxLength(80)]);
+    this.authForm.controls.name.updateValueAndValidity();
+    this.authOpen.set(true); this.closeMenu();
+  }
+  closeAuth() { this.authOpen.set(false); this.authError.set(''); this.authBusy.set(false); }
+  switchAuthMode() { this.openAuth(this.authMode() === 'login' ? 'signup' : 'login'); }
 
   submitAuth() {
+    const mode = this.authMode();
+    if (mode === 'login') this.authForm.controls.name.clearValidators();
+    else this.authForm.controls.name.setValidators([Validators.required, Validators.minLength(2), Validators.maxLength(80)]);
+    this.authForm.controls.name.updateValueAndValidity();
     if (this.authForm.invalid) { this.authForm.markAllAsTouched(); return; }
     this.authBusy.set(true); this.authError.set('');
-    const mode = this.authMode();
     const payload = { name: this.authForm.controls.name.value.trim(), email: this.authForm.controls.email.value.trim().toLowerCase(), password: this.authForm.controls.password.value };
     this.http.post<{ token: string; user: User }>(`${this.apiUrl}/auth/${mode}`, payload).subscribe({
       next: response => { localStorage.setItem('webdev_token', response.token); localStorage.setItem('webdev_user', JSON.stringify(response.user)); this.currentCustomer.set(response.user); this.authBusy.set(false); this.closeAuth(); },
       error: error => { this.authBusy.set(false); this.authError.set(error?.error?.message || 'Could not connect to the WEBDEV API. Start the backend with npm run api.'); }
     });
   }
-
   logout() { localStorage.removeItem('webdev_token'); localStorage.removeItem('webdev_user'); this.currentCustomer.set(null); this.adminOpen.set(false); }
 
   submitForm() {
@@ -119,15 +121,13 @@ export class App implements OnInit {
       error: error => { this.sending.set(false); this.sendErrorMessage.set(error?.error?.message || 'Could not send your message. Start the WEBDEV API and try again.'); }
     });
   }
-
   submitContact() { this.submitForm(); }
-  contactStatus() { return this.sent() ? (this.isArabic() ? 'تم إرسال رسالتك بنجاح.' : 'Message sent successfully.') : ''; }
+  contactStatus() { return this.sent() ? (this.isArabic() ? 'تم حفظ رسالتك بنجاح.' : 'Message received successfully.') : ''; }
   contactError() { return this.sendErrorMessage(); }
   contactBusy() { return this.sending(); }
   openProject(project: Project) { this.selectedProject.set(project); }
   closeProject() { this.selectedProject.set(null); }
   scrollToContact() { document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }
-
   openAdmin() { if (!this.isAdmin()) return; this.adminOpen.set(true); this.loadAdminDashboard(); }
   closeAdmin() { this.adminOpen.set(false); }
   loadAdminDashboard() {
@@ -138,7 +138,6 @@ export class App implements OnInit {
       error: error => { this.adminLoading.set(false); this.adminError.set(error?.error?.message || 'Unable to load admin data.'); }
     });
   }
-
   markMessageRead(id: string) {
     const token = localStorage.getItem('webdev_token'); if (!token) return;
     this.http.patch<DashboardMessage>(`${this.apiUrl}/admin/messages/${id}`, { status: 'read' }, { headers: { Authorization: `Bearer ${token}` } }).subscribe({ next: () => this.loadAdminDashboard() });
