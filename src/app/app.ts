@@ -47,7 +47,8 @@ export class App implements OnInit {
     { icon: '◈', title: 'Business Websites', text: 'Clean, trustworthy websites that turn visitors into real customers.', tags: ['Responsive', 'SEO-ready'] },
     { icon: '⌁', title: 'Restaurants & Cafés', text: 'Digital experiences for menus, reservations, locations and brand stories.', tags: ['Menus', 'Bookings'] },
     { icon: '◇', title: 'Fashion & E-commerce', text: 'Modern storefronts designed around products, conversion and a strong visual identity.', tags: ['Catalogs', 'Checkout'] },
-    { icon: '↗', title: 'Custom Web Apps', text: 'Full-stack applications with secure APIs, databases and smooth user flows.', tags: ['Angular', 'Node.js'] }
+    { icon: '↗', title: 'Custom Web Apps', text: 'Full-stack applications with secure APIs, databases and smooth user flows.', tags: ['Angular', 'Node.js'] },
+    { icon: '⚙', title: 'Fix & Upgrade Existing Websites', text: 'Already have a website? I can fix bugs, improve speed, repair broken features, refresh the design and add new functionality.', tags: ['Bug Fixes', 'Performance', 'Redesign'] }
   ];
 
   businessTypes = [
@@ -56,7 +57,8 @@ export class App implements OnInit {
     { icon: '👕', title: 'Fashion Brands', text: 'Visual storefronts that make collections and products easy to explore.' },
     { icon: '🛒', title: 'E-commerce', text: 'Product discovery, cart flows and scalable customer experiences.' },
     { icon: '🏢', title: 'Companies', text: 'Professional websites that explain services and build trust.' },
-    { icon: '⚡', title: 'Custom Apps', text: 'Dashboards, booking systems and business tools built around your workflow.' }
+    { icon: '⚡', title: 'Custom Apps', text: 'Dashboards, booking systems and business tools built around your workflow.' },
+    { icon: '🛠️', title: 'Existing Websites', text: 'Fix a broken website, modernize an old design, improve mobile experience or add the feature you need.' }
   ];
 
   projects: Project[] = [
@@ -65,7 +67,6 @@ export class App implements OnInit {
     { number: '03', title: 'Fashion Store', type: 'E-commerce Concept', text: 'A clean storefront concept built around collections, product discovery and mobile shopping.', accent: 'blue', tech: ['Angular', 'TypeScript', 'Node.js'] }
   ];
 
-  // Portfolio-focused content instead of placeholder testimonials.
   testimonials: Testimonial[] = [
     { name: 'Business-first', role: 'Every project starts with the goal', text: 'I build around what the business needs: clear messaging, useful features and a smooth path from visitor to customer.' },
     { name: 'Full-stack', role: 'Frontend + Backend', text: 'I work across Angular, TypeScript, Node.js, Express, REST APIs and databases to build complete web experiences.' },
