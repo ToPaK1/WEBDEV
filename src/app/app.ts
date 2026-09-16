@@ -13,7 +13,7 @@ interface DashboardCustomer { id: string; name: string; email: string; role: str
 @Component({ selector: 'app-root', standalone: true, imports: [CommonModule, ReactiveFormsModule, HttpClientModule], templateUrl: './app.html', styleUrl: './app.css' })
 export class App implements OnInit {
   private readonly apiUrl = 'http://localhost:3001/api';
-  menuOpen = signal(false); sent = signal(false); sending = signal(false); sendError = signal('');
+  menuOpen = signal(false); sent = signal(false); sending = signal(false); sendErrorMessage = signal('');
   authOpen = signal(false); authMode = signal<'login' | 'signup'>('login'); authError = signal(''); authBusy = signal(false);
   currentCustomer = signal<User | null>(null); language = signal<'en' | 'ar'>('en'); theme = signal<'dark' | 'light'>('dark');
   loading = signal(true); notFound = signal(false); cursorX = signal(0); cursorY = signal(0); scrollY = signal(0);
@@ -31,14 +31,23 @@ export class App implements OnInit {
     { icon: '↗', title: 'Custom Web Apps', text: 'Full-stack applications with secure APIs, databases and smooth user flows.', tags: ['Angular', 'Node.js'] },
     { icon: '⚙', title: 'Fix & Upgrade Existing Websites', text: 'Fix bugs, repair broken features, improve speed, refresh the design and add new functionality to an existing website.', tags: ['Bug Fixes', 'Performance', 'Redesign'] }
   ];
+
   businessTypes = [
-    { icon: '🍽️', title: 'Restaurants', text: 'Menus, reservations, locations and a premium food-first experience.' }, { icon: '☕', title: 'Cafés', text: 'A warm digital presence with menus, offers, maps and social links.' }, { icon: '👕', title: 'Fashion Brands', text: 'Visual storefronts that make collections and products easy to explore.' }, { icon: '🛒', title: 'E-commerce', text: 'Product discovery, cart flows and scalable customer experiences.' }, { icon: '🏢', title: 'Companies', text: 'Professional websites that explain services and build trust.' }, { icon: '⚡', title: 'Custom Apps', text: 'Dashboards, booking systems and business tools built around your workflow.' }, { icon: '🛠️', title: 'Existing Websites', text: 'Fix a broken website, modernize an old design, improve mobile experience or add the feature you need.' }
+    { icon: '🍽️', title: 'Restaurants', text: 'Menus, reservations, locations and a premium food-first experience.' },
+    { icon: '☕', title: 'Cafés', text: 'A warm digital presence with menus, offers, maps and social links.' },
+    { icon: '👕', title: 'Fashion Brands', text: 'Visual storefronts that make collections and products easy to explore.' },
+    { icon: '🛒', title: 'E-commerce', text: 'Product discovery, cart flows and scalable customer experiences.' },
+    { icon: '🏢', title: 'Companies', text: 'Professional websites that explain services and build trust.' },
+    { icon: '⚡', title: 'Custom Apps', text: 'Dashboards, booking systems and business tools built around your workflow.' },
+    { icon: '🛠️', title: 'Existing Websites', text: 'Fix a broken website, modernize an old design, improve mobile experience or add the feature you need.' }
   ];
+
   projects: Project[] = [
     { number: '01', title: 'CineBook', type: 'Movie Booking Platform', text: 'A complete booking experience with movies, cinemas, shows, seats and customer tickets.', accent: 'violet', tech: ['Angular', 'Node.js', 'Express', 'SQLite'], github: 'https://github.com/ToPaK1/movie-booking-backend' },
     { number: '02', title: 'Restaurant Experience', type: 'Business Website Concept', text: 'A premium restaurant presence focused on menu discovery, atmosphere and reservations.', accent: 'orange', tech: ['Angular', 'Responsive UI', 'REST API'] },
     { number: '03', title: 'Fashion Store', type: 'E-commerce Concept', text: 'A clean storefront concept built around collections, product discovery and mobile shopping.', accent: 'blue', tech: ['Angular', 'TypeScript', 'Node.js'] }
   ];
+
   testimonials: Testimonial[] = [
     { name: 'Business-first', role: 'Every project starts with the goal', text: 'I build around what the business needs: clear messaging, useful features and a smooth path from visitor to customer.' },
     { name: 'Full-stack', role: 'Frontend + Backend', text: 'I work across Angular, TypeScript, Node.js, Express, REST APIs and databases to build complete web experiences.' },
@@ -46,8 +55,18 @@ export class App implements OnInit {
     { name: 'Built to grow', role: 'Clean foundation', text: 'The goal is not only a good-looking website, but a solid foundation that can evolve with the business.' }
   ];
 
-  contactForm = new FormGroup({ name: new FormControl('', { nonNullable: true, validators: [Validators.required] }), email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }), business: new FormControl('', { nonNullable: true }), message: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(10)] }) });
-  authForm = new FormGroup({ name: new FormControl('', { nonNullable: true }), email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }), password: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(6)] }) });
+  contactForm = new FormGroup({
+    name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+    business: new FormControl('', { nonNullable: true }),
+    message: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(10)] })
+  });
+
+  authForm = new FormGroup({
+    name: new FormControl('', { nonNullable: true }),
+    email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+    password: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(6)] })
+  });
 
   constructor(private http: HttpClient) {
     const savedUser = localStorage.getItem('webdev_user');
@@ -94,16 +113,16 @@ export class App implements OnInit {
 
   submitForm() {
     if (this.contactForm.invalid) { this.contactForm.markAllAsTouched(); return; }
-    this.sending.set(true); this.sent.set(false); this.sendError('');
+    this.sending.set(true); this.sent.set(false); this.sendErrorMessage.set('');
     this.http.post<{ message: string }>(`${this.apiUrl}/contact`, this.contactForm.getRawValue()).subscribe({
       next: () => { this.sending.set(false); this.sent.set(true); this.contactForm.reset(); },
-      error: error => { this.sending.set(false); this.sendError(error?.error?.message || 'Could not send your message. Start the WEBDEV API and try again.'); }
+      error: error => { this.sending.set(false); this.sendErrorMessage.set(error?.error?.message || 'Could not send your message. Start the WEBDEV API and try again.'); }
     });
   }
 
   submitContact() { this.submitForm(); }
   contactStatus() { return this.sent() ? (this.isArabic() ? 'تم إرسال رسالتك بنجاح.' : 'Message sent successfully.') : ''; }
-  contactError() { return this.sendError(); }
+  contactError() { return this.sendErrorMessage(); }
   contactBusy() { return this.sending(); }
   openProject(project: Project) { this.selectedProject.set(project); }
   closeProject() { this.selectedProject.set(null); }
@@ -119,6 +138,7 @@ export class App implements OnInit {
       error: error => { this.adminLoading.set(false); this.adminError.set(error?.error?.message || 'Unable to load admin data.'); }
     });
   }
+
   markMessageRead(id: string) {
     const token = localStorage.getItem('webdev_token'); if (!token) return;
     this.http.patch<DashboardMessage>(`${this.apiUrl}/admin/messages/${id}`, { status: 'read' }, { headers: { Authorization: `Bearer ${token}` } }).subscribe({ next: () => this.loadAdminDashboard() });
