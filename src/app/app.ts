@@ -134,6 +134,12 @@ export class App implements OnInit {
     });
   }
 
+  // Template compatibility aliases for the contact form.
+  submitContact() { this.submitForm(); }
+  contactStatus() { return this.sent() ? 'Message sent successfully.' : ''; }
+  contactError() { return this.sendError(); }
+  contactBusy() { return this.sending(); }
+
   openProject(project: Project) { this.selectedProject.set(project); }
   closeProject() { this.selectedProject.set(null); }
   scrollToContact() { document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }
