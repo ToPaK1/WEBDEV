@@ -65,10 +65,12 @@ export class App implements OnInit {
     { number: '03', title: 'Fashion Store', type: 'E-commerce Concept', text: 'A clean storefront concept built around collections, product discovery and mobile shopping.', accent: 'blue', tech: ['Angular', 'TypeScript', 'Node.js'] }
   ];
 
+  // Portfolio-focused content instead of placeholder testimonials.
   testimonials: Testimonial[] = [
-    { name: 'Business Owner', role: 'Restaurant', text: 'Demo placeholder — this card is ready for a real client review once the first project launches.' },
-    { name: 'Brand Founder', role: 'Fashion', text: 'Demo placeholder — replace this with verified feedback from a real client or business owner.' },
-    { name: 'Startup Team', role: 'Technology', text: 'Demo placeholder — the layout is designed to showcase short, credible customer feedback.' }
+    { name: 'Business-first', role: 'Every project starts with the goal', text: 'I build around what the business needs: clear messaging, useful features and a smooth path from visitor to customer.' },
+    { name: 'Full-stack', role: 'Frontend + Backend', text: 'I work across Angular, TypeScript, Node.js, Express, REST APIs and databases to build complete web experiences.' },
+    { name: 'Responsive', role: 'Desktop + Mobile', text: 'Every interface is designed to stay clean, readable and easy to use across phones, tablets and desktop screens.' },
+    { name: 'Built to grow', role: 'Clean foundation', text: 'The goal is not only a good-looking website, but a solid foundation that can evolve with the business.' }
   ];
 
   contactForm = new FormGroup({
@@ -94,19 +96,49 @@ export class App implements OnInit {
 
   ngOnInit() {
     this.notFound.set(location.pathname !== '/' && location.pathname !== '/index.html');
-    setTimeout(() => { this.loading.set(false); this.revealReady.set(true); }, 650);
+    setTimeout(() => {
+      this.loading.set(false);
+      this.revealReady.set(true);
+      this.updatePortfolioCopy();
+    }, 650);
   }
 
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent) { this.cursorX.set(event.clientX); this.cursorY.set(event.clientY); }
 
   isArabic() { return this.language() === 'ar'; }
-  toggleLanguage() { this.language.update(value => value === 'en' ? 'ar' : 'en'); }
+  toggleLanguage() {
+    this.language.update(value => value === 'en' ? 'ar' : 'en');
+    setTimeout(() => this.updatePortfolioCopy());
+  }
   isLightMode() { return this.theme() === 'light'; }
   isAdmin() { return this.currentCustomer()?.role === 'admin'; }
   toggleTheme() { const nextTheme = this.theme() === 'dark' ? 'light' : 'dark'; this.theme.set(nextTheme); localStorage.setItem('webdev_theme', nextTheme); }
   toggleMenu() { this.menuOpen.update(value => !value); }
   closeMenu() { this.menuOpen.set(false); }
+
+  private updatePortfolioCopy() {
+    const section = document.getElementById('testimonials');
+    if (section) {
+      const label = section.querySelector('.section-label');
+      const heading = section.querySelector('h2');
+      const description = section.querySelector('.section-head p');
+      const navLink = document.querySelector('.nav-links a[href="#testimonials"]');
+
+      if (label) label.textContent = this.isArabic() ? '05 — طريقة الشغل' : '05 — MY APPROACH';
+      if (heading) heading.textContent = this.isArabic() ? 'إزاي ببني المشروع.' : 'How I build your project.';
+      if (description) description.textContent = this.isArabic() ? 'من فهم البزنس لحد تجربة مستخدم كاملة، كل خطوة لها هدف واضح.' : 'From understanding the business to building the final experience, every step has a clear purpose.';
+      if (navLink) navLink.textContent = this.isArabic() ? 'طريقة الشغل' : 'My Approach';
+    }
+
+    const aboutParagraphs = document.querySelectorAll('#about .about-grid .reveal-item p');
+    const aboutDetails = aboutParagraphs.item(1);
+    if (aboutDetails) {
+      aboutDetails.textContent = this.isArabic()
+        ? 'من المطاعم والكافيهات لبراندات الملابس والمتاجر الإلكترونية، كل مشروع له تجربة مصممة حسب احتياجاته. كما حصلت على تدريب في تطوير الويب من NTI، مما عزز خبرتي العملية في بناء تطبيقات ومواقع الويب.'
+        : 'From local cafés and restaurants to fashion brands and e-commerce stores, every project gets a custom approach. I also completed a Web Development course at NTI, strengthening my practical skills in building modern websites and web applications.';
+    }
+  }
 
   openAuth(mode: 'login' | 'signup') { this.authMode.set(mode); this.authError.set(''); this.authForm.reset(); this.authOpen.set(true); this.closeMenu(); }
   closeAuth() { this.authOpen.set(false); this.authError.set(''); }
@@ -134,9 +166,8 @@ export class App implements OnInit {
     });
   }
 
-  // Template compatibility aliases for the contact form.
   submitContact() { this.submitForm(); }
-  contactStatus() { return this.sent() ? 'Message sent successfully.' : ''; }
+  contactStatus() { return this.sent() ? (this.isArabic() ? 'تم إرسال رسالتك بنجاح.' : 'Message sent successfully.') : ''; }
   contactError() { return this.sendError(); }
   contactBusy() { return this.sending(); }
 
