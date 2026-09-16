@@ -11,9 +11,35 @@ const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@webdev.local').trim().toL
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'ChangeMe123!';
 const DB_DIR = path.join(__dirname, 'data');
 const DB_FILE = path.join(DB_DIR, 'webdev.json');
+const rateBuckets = new Map();
 
+app.disable('x-powered-by');
 app.use(cors());
 app.use(express.json({ limit: '100kb' }));
+
+// Lightweight security headers without adding another dependency.
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
+
+function rateLimit({ windowMs = 15 * 60 * 1000, max = 20 } = {}) {
+  return (req, res, next) => {
+    const key = `${req.ip}:${req.path}`;
+    const now = Date.now();
+    const bucket = rateBuckets.get(key) || { start: now, count: 0 };
+    if (now - bucket.start >= windowMs) {
+      bucket.start = now;
+      bucket.count = 0;
+    }
+    bucket.count += 1;
+    rateBuckets.set(key, bucket);
+    if (bucket.count > max) return res.status(429).json({ message: 'Too many requests. Please try again later.' });
+    next();
+  };
+}
 
 function ensureDb() {
   if (!fs.existsSync(DB_DIR)) fs.mkdirSync(DB_DIR, { recursive: true });
@@ -24,12 +50,22 @@ function ensureDb() {
 
 function readDb() {
   ensureDb();
-  return JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+  try {
+    return JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+  } catch {
+    return { users: [], messages: [], projects: [] };
+  }
 }
 
 function writeDb(db) {
   ensureDb();
-  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
+  const tempFile = `${DB_FILE}.tmp`;
+  fs.writeFileSync(tempFile, JSON.stringify(db, null, 2));
+  fs.renameSync(tempFile, DB_FILE);
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
@@ -38,10 +74,16 @@ function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
 }
 
 function verifyPassword(password, stored) {
-  const [salt, expected] = String(stored).split(':');
-  if (!salt || !expected) return false;
-  const actual = crypto.scryptSync(password, salt, 64).toString('hex');
-  return crypto.timingSafeEqual(Buffer.from(actual, 'hex'), Buffer.from(expected, 'hex'));
+  try {
+    const [salt, expected] = String(stored).split(':');
+    if (!salt || !expected) return false;
+    const actual = crypto.scryptSync(password, salt, 64).toString('hex');
+    const expectedBuffer = Buffer.from(expected, 'hex');
+    const actualBuffer = Buffer.from(actual, 'hex');
+    return expectedBuffer.length === actualBuffer.length && crypto.timingSafeEqual(actualBuffer, expectedBuffer);
+  } catch {
+    return false;
+  }
 }
 
 function base64Url(value) {
@@ -60,9 +102,11 @@ function readToken(token) {
     const [header, body, signature] = token.split('.');
     if (!header || !body || !signature) return null;
     const expected = crypto.createHmac('sha256', JWT_SECRET).update(`${header}.${body}`).digest('base64url');
-    if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) return null;
+    const signatureBuffer = Buffer.from(signature);
+    const expectedBuffer = Buffer.from(expected);
+    if (signatureBuffer.length !== expectedBuffer.length || !crypto.timingSafeEqual(signatureBuffer, expectedBuffer)) return null;
     const payload = JSON.parse(Buffer.from(body, 'base64url').toString('utf8'));
-    if (payload.exp < Date.now()) return null;
+    if (!payload.exp || payload.exp < Date.now()) return null;
     return payload;
   } catch {
     return null;
@@ -86,13 +130,15 @@ function adminOnly(req, res, next) {
 
 ensureDb();
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'WEBDEV API' }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'WEBDEV API', timestamp: new Date().toISOString() }));
 
-app.post('/api/auth/signup', (req, res) => {
+app.post('/api/auth/signup', rateLimit({ max: 8 }), (req, res) => {
   const name = String(req.body?.name || '').trim();
   const email = String(req.body?.email || '').trim().toLowerCase();
   const password = String(req.body?.password || '');
-  if (!name || !email || password.length < 6) return res.status(400).json({ message: 'Name, valid email and 6+ character password are required.' });
+  if (name.length < 2 || name.length > 80 || !isValidEmail(email) || password.length < 6 || password.length > 128) {
+    return res.status(400).json({ message: 'Enter a valid name, email and a 6-128 character password.' });
+  }
 
   const db = readDb();
   if (db.users.some(user => user.email === email)) return res.status(409).json({ message: 'An account with this email already exists.' });
@@ -103,9 +149,11 @@ app.post('/api/auth/signup', (req, res) => {
   res.status(201).json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
 });
 
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', rateLimit({ max: 10 }), (req, res) => {
   const email = String(req.body?.email || '').trim().toLowerCase();
   const password = String(req.body?.password || '');
+  if (!isValidEmail(email) || !password) return res.status(400).json({ message: 'Email and password are required.' });
+
   if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
     const admin = { id: 'admin', name: 'WEBDEV Admin', email: ADMIN_EMAIL, role: 'admin' };
     return res.json({ token: createToken({ sub: admin.id, name: admin.name, email: admin.email, role: admin.role }), user: admin });
@@ -118,11 +166,13 @@ app.post('/api/auth/login', (req, res) => {
   res.json({ token: createToken({ sub: user.id, name: user.name, email: user.email, role: user.role }), user: safeUser });
 });
 
-app.post('/api/contact', (req, res) => {
+app.post('/api/contact', rateLimit({ max: 6 }), (req, res) => {
   const name = String(req.body?.name || '').trim();
   const email = String(req.body?.email || '').trim().toLowerCase();
   const message = String(req.body?.message || '').trim();
-  if (!name || !email || message.length < 10) return res.status(400).json({ message: 'Please provide your name, email and project details.' });
+  if (name.length < 2 || name.length > 80 || !isValidEmail(email) || message.length < 10 || message.length > 5000) {
+    return res.status(400).json({ message: 'Please provide a valid name, email and project details (10-5000 characters).' });
+  }
   const db = readDb();
   const item = { id: crypto.randomUUID(), name, email, message, status: 'new', createdAt: new Date().toISOString() };
   db.messages.unshift(item);
@@ -155,12 +205,22 @@ app.get('/api/admin/projects', auth, adminOnly, (_req, res) => {
 });
 
 app.post('/api/admin/projects', auth, adminOnly, (req, res) => {
+  const title = String(req.body?.title || '').trim();
+  const type = String(req.body?.type || '').trim();
+  const url = String(req.body?.url || '').trim();
+  if (!title || title.length > 120) return res.status(400).json({ message: 'Project title is required and must be under 120 characters.' });
+  if (url && !/^https?:\/\//i.test(url)) return res.status(400).json({ message: 'Project URL must start with http:// or https://.' });
   const db = readDb();
-  const project = { id: crypto.randomUUID(), title: String(req.body?.title || '').trim(), type: String(req.body?.type || '').trim(), url: String(req.body?.url || '').trim() };
-  if (!project.title) return res.status(400).json({ message: 'Project title is required.' });
+  const project = { id: crypto.randomUUID(), title, type: type.slice(0, 80), url };
   db.projects.push(project);
   writeDb(db);
   res.status(201).json(project);
+});
+
+app.use((_req, res) => res.status(404).json({ message: 'Route not found.' }));
+app.use((err, _req, res, _next) => {
+  console.error(err);
+  res.status(500).json({ message: 'Internal server error.' });
 });
 
 app.listen(PORT, () => {
