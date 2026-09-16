@@ -22,7 +22,7 @@
   text-shadow:0 0 18px rgba(69,214,255,.7);
 }
 
-/* Keep only the two WhatsApp contact cards. The hero WhatsApp CTA is hidden. */
+/* Keep exactly two WhatsApp contact cards. */
 .hero-actions .whatsapp-btn{
   display:none !important;
 }
@@ -48,7 +48,12 @@
   transition:transform .3s ease,border-color .3s ease,box-shadow .3s ease !important;
 }
 
-/* WhatsApp labels are controlled only by the HTML span. Never inject extra text. */
+/* The HTML contains Font Awesome <i> icons while CSS also creates the icon with ::before.
+   Hide the duplicate WhatsApp <i> so each WhatsApp card has exactly one icon. */
+.contact-socials .social-link.whatsapp > i{
+  display:none !important;
+}
+
 .contact-socials .social-link.whatsapp span,
 .contact-socials .social-link.whatsapp span::after{
   font-size:15px !important;
