@@ -8,7 +8,7 @@
   <meta name="description" content="WEBDEV creates modern websites and digital experiences for restaurants, cafés, fashion brands and businesses.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="theme-light.css">
   <link rel="stylesheet" href="contact-enhancements.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -22,5 +22,24 @@
     <span class="petal p9"></span><span class="petal p10"></span><span class="petal p11"></span><span class="petal p12"></span>
     <span class="petal p13"></span><span class="petal p14"></span><span class="petal p15"></span><span class="petal p16"></span>
   </div>
+
+  <script>
+    (() => {
+      const addSecondWhatsApp = () => {
+        const socials = document.querySelector('.contact-socials');
+        if (!socials || socials.querySelector('.second-whatsapp')) return;
+        const link = document.createElement('a');
+        link.className = 'social-link whatsapp second-whatsapp';
+        link.href = 'https://wa.me/201066194490';
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.innerHTML = '<i class="fa-brands fa-whatsapp" aria-hidden="true"></i><span>WhatsApp · 01066194490</span>';
+        socials.insertBefore(link, socials.firstChild?.nextSibling || null);
+      };
+      const observer = new MutationObserver(addSecondWhatsApp);
+      observer.observe(document.body, { childList: true, subtree: true });
+      addSecondWhatsApp();
+    })();
+  </script>
 </body>
 </html>
