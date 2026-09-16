@@ -22,28 +22,5 @@
     <span class="petal p9"></span><span class="petal p10"></span><span class="petal p11"></span><span class="petal p12"></span>
     <span class="petal p13"></span><span class="petal p14"></span><span class="petal p15"></span><span class="petal p16"></span>
   </div>
-
-  <script>
-    (() => {
-      const addContactLink = () => {
-        const nav = document.querySelector('.nav-links');
-        if (!nav || nav.querySelector('.injected-contact-link')) return;
-        const link = document.createElement('a');
-        link.className = 'injected-contact-link';
-        link.href = '#contact';
-        link.textContent = 'Contact';
-        link.addEventListener('click', () => {
-          const target = document.querySelector('#contact');
-          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-        const lang = nav.querySelector('.lang-btn');
-        nav.insertBefore(link, lang || null);
-      };
-
-      const observer = new MutationObserver(addContactLink);
-      observer.observe(document.body, { childList: true, subtree: true });
-      addContactLink();
-    })();
-  </script>
 </body>
 </html>
