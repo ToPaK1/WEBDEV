@@ -21,6 +21,7 @@ export class App {
   authError = signal('');
   currentCustomer = signal<Customer | null>(null);
   language = signal<'en' | 'ar'>('en');
+  theme = signal<'dark' | 'light'>('dark');
 
   services: Service[] = [
     { icon: '◈', title: 'Business Websites', text: 'Clean, trustworthy websites that turn visitors into real customers.', tags: ['Responsive', 'SEO-ready'] },
@@ -56,10 +57,19 @@ export class App {
   constructor() {
     const saved = localStorage.getItem('webdev_customer_session');
     if (saved) this.currentCustomer.set(JSON.parse(saved));
+
+    const savedTheme = localStorage.getItem('webdev_theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') this.theme.set(savedTheme);
   }
 
   isArabic() { return this.language() === 'ar'; }
   toggleLanguage() { this.language.update(value => value === 'en' ? 'ar' : 'en'); }
+  isLightMode() { return this.theme() === 'light'; }
+  toggleTheme() {
+    const nextTheme = this.theme() === 'dark' ? 'light' : 'dark';
+    this.theme.set(nextTheme);
+    localStorage.setItem('webdev_theme', nextTheme);
+  }
   toggleMenu() { this.menuOpen.update(value => !value); }
   closeMenu() { this.menuOpen.set(false); }
 
