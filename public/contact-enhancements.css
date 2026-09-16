@@ -43,7 +43,21 @@
   transition:transform .3s ease,border-color .3s ease,box-shadow .3s ease !important;
 }
 
-/* Font Awesome 6 brand glyphs — single CSS escape is required */
+/* Never display a phone number or extra generated text inside WhatsApp buttons. */
+.contact-socials .social-link.whatsapp span{
+  font-size:0 !important;
+}
+.contact-socials .social-link.whatsapp span::after{
+  content:'WhatsApp';
+  font-size:15px;
+  line-height:1.2;
+  color:inherit;
+}
+.contact-socials .social-link.whatsapp::before{
+  content:"\f232" !important;
+}
+
+/* Font Awesome 6 brand glyphs */
 .contact-socials .social-link::before{
   font-family:"Font Awesome 6 Brands";
   font-weight:400;
