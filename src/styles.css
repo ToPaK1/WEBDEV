@@ -6,32 +6,36 @@ body::-webkit-scrollbar{width:8px} body::-webkit-scrollbar-track{background:#070
 .container{width:min(1160px,calc(100% - 48px));margin:0 auto}
 ::selection{background:#7668df;color:#fff}
 
-/* Sakura - global override so the petals stay visible above the page background */
+/* Keep the fixed Sakura layer from being clipped by Angular's host element. */
+app-root{overflow:visible!important;display:block!important;min-height:100vh!important}
+
 .sakura-layer{
   position:fixed!important;
   inset:0!important;
-  z-index:20!important;
+  z-index:999999!important;
   display:block!important;
   visibility:visible!important;
   opacity:1!important;
   pointer-events:none!important;
-  overflow:hidden!important;
+  overflow:visible!important;
+  width:100vw!important;
+  height:100vh!important;
 }
 .sakura-layer .petal{
   position:absolute!important;
   top:-12vh!important;
   display:block!important;
   visibility:visible!important;
-  width:15px!important;
-  height:12px!important;
+  width:16px!important;
+  height:13px!important;
   opacity:1!important;
-  background:linear-gradient(135deg,#ffe1ec,#ff9fc4 55%,#ec6f9f)!important;
+  background:linear-gradient(135deg,#fff0f6,#ffb0cf 55%,#ee76a6)!important;
   border-radius:70% 15% 70% 15%!important;
-  box-shadow:0 3px 12px rgba(255,130,180,.5)!important;
+  box-shadow:0 3px 14px rgba(255,130,180,.7)!important;
   animation-name:sakuraFall,sakuraSway!important;
   animation-timing-function:linear,ease-in-out!important;
   animation-iteration-count:infinite,infinite!important;
-  will-change:top,transform!important;
+  will-change:top,transform,margin-left!important;
 }
 .sakura-layer .petal::after{
   content:'';
@@ -40,7 +44,7 @@ body::-webkit-scrollbar{width:8px} body::-webkit-scrollbar-track{background:#070
   height:9px;
   left:50%;
   top:1px;
-  background:rgba(255,255,255,.6);
+  background:rgba(255,255,255,.8);
   border-radius:2px;
   transform:rotate(20deg);
 }
