@@ -1,4 +1,4 @@
-/* Contact navigation + illuminated social icons */
+/* Contact social cards — use the HTML Font Awesome icon exactly once. */
 
 .injected-contact-link{
   position:relative;
@@ -10,22 +10,14 @@
   font-weight:600;
   transition:color .25s ease,transform .25s ease,text-shadow .25s ease;
 }
-.injected-contact-link::before{
-  content:'✦';
-  font-size:.7rem;
-  color:var(--accent,#8b7cff);
-  text-shadow:0 0 12px rgba(139,124,255,.9);
-}
+.injected-contact-link::before{content:none !important}
 .injected-contact-link:hover{
   color:var(--accent2,#45d6ff);
   transform:translateY(-2px);
   text-shadow:0 0 18px rgba(69,214,255,.7);
 }
 
-/* Keep exactly two WhatsApp contact cards. */
-.hero-actions .whatsapp-btn{
-  display:none !important;
-}
+.hero-actions .whatsapp-btn{display:none !important}
 
 .contact-socials{
   display:grid !important;
@@ -48,32 +40,8 @@
   transition:transform .3s ease,border-color .3s ease,box-shadow .3s ease !important;
 }
 
-/* The HTML contains Font Awesome <i> icons while CSS also creates the icon with ::before.
-   Hide the duplicate WhatsApp <i> so each WhatsApp card has exactly one icon. */
-.contact-socials .social-link.whatsapp > i{
-  display:none !important;
-}
-
-.contact-socials .social-link.whatsapp span,
-.contact-socials .social-link.whatsapp span::after{
-  font-size:15px !important;
-  content:none !important;
-}
-
-.contact-socials .social-link::before{
-  font-family:"Font Awesome 6 Brands";
-  font-weight:400;
-  width:44px;
-  height:44px;
-  flex:0 0 44px;
-  display:grid;
-  place-items:center;
-  border-radius:14px;
-  font-size:21px;
-  line-height:1;
-  background:rgba(255,255,255,.055);
-  box-shadow:0 0 20px rgba(139,124,255,.15);
-}
+/* IMPORTANT: no CSS-generated icon. Only the single <i> in the HTML is shown. */
+.contact-socials .social-link::before{content:none !important;display:none !important}
 .contact-socials .social-link::after{
   content:'';
   position:absolute;
@@ -83,6 +51,24 @@
   transition:transform .7s ease;
   pointer-events:none;
 }
+.contact-socials .social-link > i{
+  display:grid !important;
+  place-items:center;
+  width:44px;
+  height:44px;
+  min-width:44px;
+  flex:0 0 44px;
+  border-radius:14px;
+  font-size:21px;
+  line-height:1;
+  background:rgba(255,255,255,.055);
+}
+.contact-socials .social-link.whatsapp > i{color:#25D366;box-shadow:0 0 22px rgba(37,211,102,.3)}
+.contact-socials a[href*="instagram"] > i{color:#ff5ca8;box-shadow:0 0 22px rgba(255,92,168,.3)}
+.contact-socials a[href*="facebook"] > i{color:#4d8dff;box-shadow:0 0 22px rgba(77,141,255,.3)}
+.contact-socials a[href*="tiktok"] > i{color:#fff;box-shadow:0 0 22px rgba(255,255,255,.18)}
+.contact-socials a[href*="linkedin"] > i{color:#38a8ff;box-shadow:0 0 22px rgba(56,168,255,.3)}
+
 .contact-socials .social-link:hover{
   transform:translateY(-6px) scale(1.015);
   border-color:rgba(139,124,255,.45) !important;
@@ -90,11 +76,8 @@
 }
 .contact-socials .social-link:hover::after{transform:translateX(45%) rotate(8deg)}
 
-.contact-socials a[href*="wa.me"]::before{content:"\f232" !important;color:#25D366;box-shadow:0 0 22px rgba(37,211,102,.3)}
-.contact-socials a[href*="instagram"]::before{content:"\f16d" !important;color:#ff5ca8;box-shadow:0 0 22px rgba(255,92,168,.3)}
-.contact-socials a[href*="facebook"]::before{content:"\f39e" !important;color:#4d8dff;box-shadow:0 0 22px rgba(77,141,255,.3)}
-.contact-socials a[href*="tiktok"]::before{content:"\e07b" !important;color:#fff;box-shadow:0 0 22px rgba(255,255,255,.18)}
-.contact-socials a[href*="linkedin"]::before{content:"\f0e1" !important;color:#38a8ff;box-shadow:0 0 22px rgba(56,168,255,.3)}
+/* Never allow a third WhatsApp card if an old cached template is present. */
+.contact-socials .social-link.whatsapp:nth-of-type(n+3){display:none !important}
 
 @media (max-width:700px){
   .contact-socials{grid-template-columns:1fr !important}
