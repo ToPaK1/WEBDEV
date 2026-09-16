@@ -1,4 +1,5 @@
 import { Component, HostListener, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 
@@ -12,7 +13,7 @@ interface DashboardCustomer { id: string; name: string; email: string; role: str
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [ReactiveFormsModule, HttpClientModule],
+  imports: [CommonModule, ReactiveFormsModule, HttpClientModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -97,59 +98,32 @@ export class App implements OnInit {
   }
 
   @HostListener('document:mousemove', ['$event'])
-  onMouseMove(event: MouseEvent) {
-    this.cursorX.set(event.clientX);
-    this.cursorY.set(event.clientY);
-  }
+  onMouseMove(event: MouseEvent) { this.cursorX.set(event.clientX); this.cursorY.set(event.clientY); }
 
   isArabic() { return this.language() === 'ar'; }
   toggleLanguage() { this.language.update(value => value === 'en' ? 'ar' : 'en'); }
   isLightMode() { return this.theme() === 'light'; }
   isAdmin() { return this.currentCustomer()?.role === 'admin'; }
-  toggleTheme() {
-    const nextTheme = this.theme() === 'dark' ? 'light' : 'dark';
-    this.theme.set(nextTheme);
-    localStorage.setItem('webdev_theme', nextTheme);
-  }
+  toggleTheme() { const nextTheme = this.theme() === 'dark' ? 'light' : 'dark'; this.theme.set(nextTheme); localStorage.setItem('webdev_theme', nextTheme); }
   toggleMenu() { this.menuOpen.update(value => !value); }
   closeMenu() { this.menuOpen.set(false); }
 
-  openAuth(mode: 'login' | 'signup') {
-    this.authMode.set(mode); this.authError.set(''); this.authForm.reset(); this.authOpen.set(true); this.closeMenu();
-  }
+  openAuth(mode: 'login' | 'signup') { this.authMode.set(mode); this.authError.set(''); this.authForm.reset(); this.authOpen.set(true); this.closeMenu(); }
   closeAuth() { this.authOpen.set(false); this.authError.set(''); }
-  switchAuthMode() {
-    this.authMode.update(mode => mode === 'login' ? 'signup' : 'login');
-    this.authError.set(''); this.authForm.reset();
-  }
+  switchAuthMode() { this.authMode.update(mode => mode === 'login' ? 'signup' : 'login'); this.authError.set(''); this.authForm.reset(); }
 
   submitAuth() {
     if (this.authForm.invalid) { this.authForm.markAllAsTouched(); return; }
     this.authBusy.set(true); this.authError.set('');
     const mode = this.authMode();
-    const payload = {
-      name: this.authForm.controls.name.value.trim(),
-      email: this.authForm.controls.email.value.trim().toLowerCase(),
-      password: this.authForm.controls.password.value
-    };
+    const payload = { name: this.authForm.controls.name.value.trim(), email: this.authForm.controls.email.value.trim().toLowerCase(), password: this.authForm.controls.password.value };
     this.http.post<{ token: string; user: User }>(`${this.apiUrl}/auth/${mode}`, payload).subscribe({
-      next: response => {
-        localStorage.setItem('webdev_token', response.token);
-        localStorage.setItem('webdev_user', JSON.stringify(response.user));
-        this.currentCustomer.set(response.user);
-        this.authBusy.set(false); this.closeAuth();
-      },
-      error: error => {
-        this.authBusy.set(false);
-        this.authError.set(error?.error?.message || 'Could not connect to the WEBDEV API. Start the backend with npm run api.');
-      }
+      next: response => { localStorage.setItem('webdev_token', response.token); localStorage.setItem('webdev_user', JSON.stringify(response.user)); this.currentCustomer.set(response.user); this.authBusy.set(false); this.closeAuth(); },
+      error: error => { this.authBusy.set(false); this.authError.set(error?.error?.message || 'Could not connect to the WEBDEV API. Start the backend with npm run api.'); }
     });
   }
 
-  logout() {
-    localStorage.removeItem('webdev_token'); localStorage.removeItem('webdev_user');
-    this.currentCustomer.set(null); this.adminOpen.set(false);
-  }
+  logout() { localStorage.removeItem('webdev_token'); localStorage.removeItem('webdev_user'); this.currentCustomer.set(null); this.adminOpen.set(false); }
 
   submitForm() {
     if (this.contactForm.invalid) { this.contactForm.markAllAsTouched(); return; }
@@ -162,14 +136,10 @@ export class App implements OnInit {
 
   openProject(project: Project) { this.selectedProject.set(project); }
   closeProject() { this.selectedProject.set(null); }
+  scrollToContact() { document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }
 
-  openAdmin() {
-    if (!this.isAdmin()) return;
-    this.adminOpen.set(true); this.loadAdminDashboard();
-  }
-
+  openAdmin() { if (!this.isAdmin()) return; this.adminOpen.set(true); this.loadAdminDashboard(); }
   closeAdmin() { this.adminOpen.set(false); }
-
   loadAdminDashboard() {
     const token = localStorage.getItem('webdev_token');
     if (!token) return;
@@ -179,12 +149,9 @@ export class App implements OnInit {
       error: error => { this.adminLoading.set(false); this.adminError.set(error?.error?.message || 'Unable to load admin data.'); }
     });
   }
-
   markMessageRead(id: string) {
     const token = localStorage.getItem('webdev_token');
     if (!token) return;
     this.http.patch<DashboardMessage>(`${this.apiUrl}/admin/messages/${id}`, { status: 'read' }, { headers: { Authorization: `Bearer ${token}` } }).subscribe({ next: () => this.loadAdminDashboard() });
   }
-
-  scrollToContact() { document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }
 }
